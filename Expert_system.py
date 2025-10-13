@@ -5,7 +5,7 @@ rules = [
     {"if": ["sneezing", "runny_nose"], "then": "common_cold"},
 {"if": ["stomach_pain", "diarrhea"], "then": "food_poisoning"}
 ]
-
+ 
 def forward_chaining(facts):
     inferred = set(facts)
     changed = True

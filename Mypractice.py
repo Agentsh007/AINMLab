@@ -31,7 +31,7 @@ def backward_chaining(goal, facts):
                 return True
     return False
 
-
+ 
 def expert_system():
     # Step 1: Get user symptoms
     user_facts = input("Enter your symptoms (comma separated): ").split(",")

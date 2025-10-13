@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from sklearn.pipeline import make_pipeline
 from googletrans import Translator
 
-# ----------------------------
+# ------------------------------
 # 1. Load the training dataset (spam.csv)
 train_data = pd.read_csv("spam.csv", encoding="latin-1")
 train_data = train_data[['v1', 'v2']]  # Keep only necessary columns

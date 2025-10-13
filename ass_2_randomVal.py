@@ -7,7 +7,7 @@ height = 10
 num_food = 5
 wall_percentage = 0.20
 
-# Initialize grid
+# Initialize gridd
 grid = [[' ' for _ in range(width)] for _ in range(height)]
 
 # Random walls
