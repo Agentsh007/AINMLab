@@ -1,58 +1,38 @@
-rules = [
-    {"if": ["headache", "fever", "nausea"], "then": "dengue"},
-    {"if": ["fever", "cough"], "then": "flu"},
-    {"if": ["sore_throat", "fever"], "then": "tonsillitis"},
-    {"if": ["sneezing", "runny_nose"], "then": "common_cold"},
-{"if": ["stomach_pain", "diarrhea"], "then": "food_poisoning"}
-]
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer 
+from sklearn.naive_bayes  import MultinomialNB 
+from sklearn.metrics import accuracy_score, classification_report
+train_data = pd.read_csv("spam.csv")
+train_data = train_data[['v1','v2']]
+train_data.columns = ['label','message']
 
-def forward_chaining(facts):
-    inferred = set(facts)
-    changed = True
-    
-    while changed:
-        changed = False
-        for rule in rules:
-            if all(cond in inferred for cond in rule["if"]):
-                if rule["then"] not in inferred:
-                    inferred.add(rule["then"])
-                    changed = True
-    return inferred
+x_train_data = train_data['message']
+y_train_data = train_data['label']
 
+test_data = pd.read_csv("spam_mail.csv")
+x_test_data = test_data['Masseges']
+y_test_data = test_data['Category']
 
-def backward_chaining(goal, facts):
-    if goal in facts:
-        return True
-    
-    for rule in rules:
-        if rule["then"] == goal:
-            # Check if all conditions can be proven
-            if all(backward_chaining(cond, facts) for cond in rule["if"]):
-                return True
-    return False
+vectorizer = CountVectorizer()
+x_train_features = vectorizer.fit_transform(x_train_data)
+x_test_features = vectorizer.transform(x_test_data)
 
- 
-def expert_system():
-    # Step 1: Get user symptoms
-    user_facts = input("Enter your symptoms (comma separated): ").split(",")
-    user_facts = [fact.strip() for fact in user_facts]
-    
-    # Step 2: Forward Chaining
-    results = forward_chaining(user_facts)
-    diseases = results - set(user_facts)  # remove symptoms, keep diseases
-    
-    print("\n=== Forward Chaining Result ===")
-    if diseases:
-        print("Possible diseases:", ", ".join(diseases))
-    else:
-        print("No disease could be inferred with given symptoms.")
-    
-    # Step 3: Backward Chaining query
-    query = input("\nDo you want to check for a specific disease? (yes/no): ")
-    if query.lower() == "yes":
-        goal = input("Enter the disease name to check: ").strip()
-        if backward_chaining(goal, set(user_facts)):
-            print(f"✅ Yes, {goal} can be inferred from your symptoms.")
-        else:
-            print(f"❌ No, {goal} cannot be inferred from your symptoms.")
-expert_system()
+model = MultinomialNB()
+model.fit(x_train_features,y_train_data)
+
+y_pred = model.predict(x_test_features)
+
+accuracy = accuracy_score(y_test_data, y_pred) *100
+print(f"Test Accuracy on spam_mail.csv: {accuracy:.2f}%")
+print(f"\n Classification Report\n ", classification_report(y_test_data,y_pred))
+
+results = pd.DataFrame({
+    "Messages":x_train_data,
+    "Category":y_train_data,
+    "Predicted": y_pred
+})
+
+print(results.head(10))
+
+results.to_csv("spam_mail_results.csv",index=False)
+print("Results saved")
