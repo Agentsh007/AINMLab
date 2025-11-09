@@ -43,15 +43,21 @@ cm_df = pd.DataFrame(cm, index=["Actual Ham", "Actual Spam"], columns=["Pred Ham
 print("\nConfusion Matrix:\n", cm_df)
 
 # ----------------------------
-# 6. Take user input and test manually
-print("\n --- Test Your Own Message --- ")
-user_input = input("Enter a message : ").strip()
-# Transform user input using same vectorizer
-user_input_features = vectorizer.transform([user_input])
-# Predict
-prediction = model.predict(user_input_features)[0]
-prob = model.predict_proba(user_input_features)[0]
+# 6. Take multiple user inputs and test manually
+print("\n --- Test Your Own Messages (enter blank line to finish) ---")
+messages = []
+while True:
+    msg = input("Enter a message (blank to finish): ").strip()
+    if msg == "":
+        break
+    messages.append(msg)
 
-print(f"\nPrediction: {prediction.upper()}")
-print(f"Probability -> Ham: {prob[0]:.2f}, Spam: {prob[1]:.2f}")
-print("-" * 40)
+if not messages:
+    print("No messages entered. Exiting manual test.")
+else:
+    features = vectorizer.transform(messages)
+    preds = model.predict(features)
+    probs = model.predict_proba(features)
+    for i, (m, p, pr) in enumerate(zip(messages, preds, probs), 1):
+        print(f"\nMessage {i}: {m}\nPrediction: {p}\nProbabilities -> {pr[0]:.4f} (Ham), {pr[1]:.4f} (Spam)")
+    print("-" * 40)

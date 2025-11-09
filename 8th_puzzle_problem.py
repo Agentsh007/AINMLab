@@ -1,96 +1,93 @@
-# Import necessary libraries
 from collections import deque
+import time
 
-# Define the dimensions of the puzzle
-N = 3
+# --- Helper function to print the board ---
+def print_board(board):
+    print("-------")
+    for row in board:
+        print(row)
+    print("-------")
 
-down = '↓'
-up = '↑'
-right = '→'
-left = '←'
+# --- Puzzle Solver Class ---
+class PuzzleSolverBFS:
+    def __init__(self, start_board, start_x, start_y):
+        self.start_board = start_board
+        self.start_x = start_x
+        self.start_y = start_y
+        self.goal_state = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
+        self.row_moves = [-1, 1, 0, 0] # Up, Down
+        self.col_moves = [0, 0, -1, 1] # Left, Right
 
-# Class to represent the state of the puzzle
-class PuzzleState:
-    def __init__(self, board, x, y, depth, last_move=None):
-        self.board = board
-        self.x = x
-        self.y = y
-        self.depth = depth
-        self.last_move = last_move  # store arrow for the blank tile
+    def _is_valid(self, x, y):
+        """Checks if (x, y) is on the 3x3 board."""
+        return 0 <= x < 3 and 0 <= y < 3
 
-# Possible moves: Left, Right, Up, Down
-row = [0, 0, -1, 1]
-col = [-1, 1, 0, 0]
-move_symbols = [right, left, down, up]  # match index order to row/col
+    def _is_goal(self, board):
+        """Checks if the board is the goal state."""
+        return board == self.goal_state
 
-# Function to check if the current state is the goal state
-def is_goal_state(board):
-    goal = [[1, 2, 3], [4, 5, 6], [7, 8, 0]]
-    return board == goal
+    def solve(self):
+        """Runs the BFS algorithm."""
+        
+        # 1. --- SETUP ---
+        q = deque()
+        q.append((self.start_board, self.start_x, self.start_y, 0))
 
-# Function to check if a move is valid
-def is_valid(x, y):
-    return 0 <= x < N and 0 <= y < N
+        visited = set()
+        visited.add(tuple(map(tuple, self.start_board))) 
 
-# Function to print the puzzle board, replacing the 0 at (blank_x,blank_y) with symbol
-def print_board(board, blank_x=None, blank_y=None, symbol=None):
-    for i, r in enumerate(board):
-        row_str = []
-        for j, v in enumerate(r):
-            if v == 0 and i == blank_x and j == blank_y:
-                row_str.append(symbol if symbol is not None else ' ')
-            elif v == 0:
-                # This case should not be reached if blank_x/y are correct
-                row_str.append(' ') 
-            else:
-                row_str.append(str(v))
-        print(' '.join(row_str))
-    print('--------')
+        print('Initial State:')
+        print_board(self.start_board)
+        print("\nStarting BFS Search...\n")
 
-# BFS function to solve the 8-puzzle problem
-def solve_puzzle_bfs(start, x, y):
-    q = deque()
-    visited = set()
+        # --- 2. START THE BFS LOOP ---
+        while q:
+            curr_board, curr_x, curr_y, curr_depth = q.popleft()
+            
+            # --- ADDED PRINT STATEMENTS ---
+            # This will print every board state as it is checked
+            print(f"Checking Depth: {curr_depth}")
+            print_board(curr_board)
+            # time.sleep(0.1) # Optional: Uncomment to watch it solve slowly
+            # --- END OF ADDED PRINT STATEMENTS ---
 
-    # Enqueue initial state (no arrow for initial placement)
-    q.append(PuzzleState(start, x, y, 0, None))
-    visited.add(tuple(map(tuple, start)))
+            # --- 3. CHECK FOR GOAL ---
+            if self._is_goal(curr_board):
+                print(f"--- Goal Found! ---")
+                print(f"Final board state:")
+                print_board(curr_board) # Print the final goal board
+                print(f"Solved in {curr_depth} moves.")
+                print(f"Total states explored: {len(visited)}")
+                return 
 
-    while q:
-        curr = q.popleft()
+            # --- 4. EXPLORE NEIGHBORS ---
+            for i in range(4):
+                new_x = curr_x + self.row_moves[i]
+                new_y = curr_y + self.col_moves[i]
 
-        # Print the current board state (show arrow instead of 0)
-        print(f'Depth: {curr.depth}')
-        print_board(curr.board, curr.x, curr.y, curr.last_move)
+                if self._is_valid(new_x, new_y):
+                    new_board = [row[:] for row in curr_board]
+                    
+                    # Swap tiles
+                    new_board[curr_x][curr_y], new_board[new_x][new_y] = \
+                        new_board[new_x][new_y], new_board[curr_x][curr_y]
 
-        # Check if goal state is reached
-        if is_goal_state(curr.board):
-            print(f'Goal state reached at depth {curr.depth}')
-            return
+                    new_board_tuple = tuple(map(tuple, new_board))
 
-        # Explore all possible moves
-        for i in range(4):
-            new_x = curr.x + row[i]
-            new_y = curr.y + col[i]
+                    if new_board_tuple not in visited:
+                        visited.add(new_board_tuple)
+                        q.append((new_board, new_x, new_y, curr_depth + 1))
 
-            if is_valid(new_x, new_y):
-                new_board = [r[:] for r in curr.board]
-                new_board[curr.x][curr.y], new_board[new_x][new_y] = new_board[new_x][new_y], new_board[curr.x][curr.y]
+        # --- 5. NO SOLUTION ---
+        print("No solution found.")
+        print(f"Total states explored: {len(visited)}")
 
-                # If this state has not been visited before, push to queue
-                if tuple(map(tuple, new_board)) not in visited:
-                    visited.add(tuple(map(tuple, new_board)))
-                    q.append(PuzzleState(new_board, new_x, new_y, curr.depth + 1, move_symbols[i]))
+# --- Driver Code (for the notebook) ---
+# We can just call the code directly
+start = [[1, 2, 3],
+         [4, 0, 5],
+         [6, 7, 8]]  # Initial state
+x, y = 1, 1
 
-    print('No solution found (BFS Brute Force reached depth limit)')
-
-# Driver Code
-if __name__ == '__main__':
-    start = [[1, 2, 3],
-             [4, 0, 5],
-             [6, 7, 8]]  # Initial state
-    x, y = 1, 1
-
-    print('Initial State:')
-    print_board(start, x, y, None)  # initial blank shown as space
-    solve_puzzle_bfs(start, x, y)
+solver = PuzzleSolverBFS(start, x, y)
+solver.solve()
