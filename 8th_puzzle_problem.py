@@ -74,16 +74,8 @@ class PuzzleSolver:
         print(f"Total states explored: {len(visited)}")
 
     def solve(self, algorithm='bfs'):
-        if algorithm.lower() == 'bfs':
-            # 1. Data structure is a deque
-            data_structure = deque()
-            # 2. Pop method is popleft()
-            pop_method = data_structure.popleft
-            # 3. Move order is standard (0, 1, 2, 3)
-            move_indices = range(4)
-            algo_name = "BFS"
-            
-        elif algorithm.lower() == 'dfs':
+       
+        if algorithm.lower() == 'dfs':
             # 1. Data structure is a list (as a stack)
             data_structure = [] 
             # 2. Pop method is pop()
@@ -93,13 +85,14 @@ class PuzzleSolver:
             algo_name = "DFS"
             
         else:
-            print(f"Unknown algorithm: {algorithm}. Defaulting to BFS.")
-            # Default to BFS parameters
+            # 1. Data structure is a deque
             data_structure = deque()
+            # 2. Pop method is popleft()
             pop_method = data_structure.popleft
+            # 3. Move order is standard (0, 1, 2, 3)
             move_indices = range(4)
             algo_name = "BFS"
-        
+            
         # Call the common loop with the chosen parameters
         self._search_loop(data_structure, pop_method, move_indices, algo_name)
 

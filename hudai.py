@@ -1,6 +1,14 @@
 class ProblemSolver:
-    def __init__(self, ):
-        pass
+    def __init__(self, start, x,y,goal):
+        self.start = start
+        self.start_x = x
+        self.start_y = y
+        self.goal = goal
+        self.row_moves = [-1,1,0,0]
+        self.col_moves = [0,0,-1,1]
+    def solve(self,algorithm = 'bfs'):
+        if algorithm == 'bfs':
+            
     
     
 if __name__ =='__main__':
