@@ -2,13 +2,12 @@ import numpy as np
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 class Perceptron:
-    def __init__(self, learning_rate=0.2, num_inputs=2):
+    def __init__(self, num_inputs=2, learning_rate=0.7, epochs=10000):
         self.learning_rate = learning_rate
         self.num_inputs = num_inputs
-        # FIX 1: Bias should be a single scalar value, not a vector
+        self.epochs = epochs
         self.weights = 2 * np.random.rand(num_inputs) - 1
-        self.bias = np.random.rand(1) # Was: np.random.rand(num_inputs)
-
+        self.bias = np.random.rand(1)
     # FIX 2: Corrected spelling
     def sigmoid(self, net_inputs):
         # Clip to avoid overflow in exp()
@@ -19,35 +18,26 @@ class Perceptron:
         weighted_sum = np.dot(inputs, self.weights) + self.bias
         return self.sigmoid(weighted_sum)
 
-    def train(self, training_inputs, training_outputs, max_error, max_epochs=10000):
-        avg_error = 1e10 # Start with a high error
-        epoch = 0
-
-        # FIX 3: Loop condition was backward. 
-        # We must loop WHILE error is GREATER than max_error
-        while avg_error > max_error:
+    def train(self, training_inputs, training_outputs):
+        for epoch in range(self.epochs):
             total_error = 0
             for inputs, target in zip(training_inputs, training_outputs):
-                pred_val = self.predict(inputs)
-                error = target - pred_val
-                delta = error * pred_val * (1 - pred_val)
-                
+                prediction = self.predict(inputs)
+                error = target - prediction
+                delta = error * prediction * (1 - prediction)
                 self.weights += self.learning_rate * delta * inputs
                 self.bias += self.learning_rate * delta
-                total_error += abs(error)
+                total_error += error ** 2
             
-            # FIX 4: Average error should be over the number of *examples*
-            avg_error = total_error / len(training_inputs)
-            epoch += 1
-            
-            # Optional: Print progress
-            if epoch % 1000 == 0:
-                print(f"Epoch {epoch}, Avg Error: {avg_error:}") 
-            if epoch == max_epochs:
-                print(f"Warning: Reached max epochs ({max_epochs}) without converging.")
+            # Check the scalar value of the total error
+            if total_error < 1e-5:
+                print(f"Converged early at epoch {epoch}")
                 break
         
-        print(f"Converged in {epoch} epochs.")
+            if epoch == self.epochs - 1:
+                # Print final error if it didn't converge early
+                print(f"Total error after training: {total_error}")
+
             
 
 
@@ -67,7 +57,7 @@ def main():
         "NOR": np.array([1, 0, 0, 0])  # Was incorrect (had [1,1,1,0])
     }
     
-    perceptron = Perceptron(0.4, input_size)
+    perceptron = Perceptron(input_size,0.4,10000)
     
     # Add a loop to ensure valid gate is entered
     while True:
@@ -75,11 +65,11 @@ def main():
         if gate in gate_outputs:
             break
         print("Invalid gate name. Please try again.")
-        
+  
     target = gate_outputs[gate]
     print(f"---Training for {gate} gate----")
     # Pass 0.01 as the max_error target
-    perceptron.train(training_inputs, target, 0.01)
+    perceptron.train(training_inputs, target)
     
     print(f"Final weights: {perceptron.weights}")
     print(f"Final bias: {perceptron.bias}")
