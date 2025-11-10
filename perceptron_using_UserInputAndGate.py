@@ -98,7 +98,7 @@ def main():
     print(f"Confusion Matrix: \n{confusion_matrix(target, prediction_labels)}")
     
     # --- Custom Test Loop ---
-    print("\n--- Test with Custom Inputs ---")
+    print("\n--- Test with user Inputs ---")
     while True:
             test_input = []
             # FIX 7: Clearer prompts for user
