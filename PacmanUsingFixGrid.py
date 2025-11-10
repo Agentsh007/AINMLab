@@ -63,13 +63,13 @@ print_grid()
 
 step = 0
 while food_positions:
-    path = bfs(pacman_position)
+    path = bfs(pacman_position) # type: ignore
     if not path:
         print("No path to remaining food!")
         break
 
     for next_pos in path[1:]:
-        grid[pacman_position[1]][pacman_position[0]] = ' '
+        grid[pacman_position[1]][pacman_position[0]] = ' ' # type: ignore
         pacman_position = next_pos
 
         if pacman_position in food_positions:
