@@ -11,7 +11,7 @@ class Perceptron:
         self.bias = np.random.rand(1)
 
     def sigmoid_func(self, net_input):
-        # Clip input to avoid overflow in exp()
+       
         net_input = np.clip(net_input, -500, 500)
         return 1 / (1 + np.exp(-net_input))
 
@@ -30,17 +30,17 @@ class Perceptron:
                 self.bias += self.learning_rate * delta
                 total_error += error ** 2
             
-            # Check the scalar value of the total error
+         
             if total_error  < 1e-5:
                 print(f"Converged early at epoch {epoch}")
                 break
         
             if epoch == self.epochs - 1:
-                 # Print final error if it didn't converge early
                 print(f"Total error after training: {total_error}")
+                
 if __name__ == "__main__":
 
-    # ✅ Only binary inputs for training
+   
     inputs = np.array([
         [0, 0],
         [0, 1],
@@ -55,12 +55,12 @@ if __name__ == "__main__":
         "NAND": np.array([1, 1, 1, 0])
     }
 
-    # ✅ Fractional test inputs — only for checking behavior
+    
     custom_inputs = np.array([
-        [0.1, 0.4], # Should be (0, 0)
-        [0.8, 0.2], # Should be (1, 0)
-        [0.1, 0.1], # Should be (0, 0)
-        [0.9, 0.7]  # Should be (1, 1)
+        [0.1, 0.4], 
+        [0.8, 0.2], 
+        [0.1, 0.1], 
+        [0.9, 0.7]  
     ])
     
     for gate_name, outputs in datasets.items():
@@ -76,15 +76,15 @@ if __name__ == "__main__":
         all_targets = []
         all_predictions = []
         
-        # This loop now *only* collects results
+        
         for test_in in custom_inputs:
             pred_val = perceptron.predict(test_in)
 
-            # Convert fractional inputs to binary (for target generation)
+            
             in1 = 1 if test_in[0] >= 0.5 else 0
             in2 = 1 if test_in[1] >= 0.5 else 0
 
-            # Determine correct target output for this gate
+           
             if gate_name == "AND":
                 target = in1 & in2
             elif gate_name == "OR":
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             else:
                 target = None
 
-            # Binary classification output
+           
             pred_label = 1 if pred_val >= 0.5 else 0
             
             print(f"Input: {test_in} | Logical Target: {target} | Prediction: {pred_label} (Raw: {pred_val:.4f})")
@@ -104,13 +104,12 @@ if __name__ == "__main__":
             all_targets.append(target)
             all_predictions.append(pred_label)
 
-        # --- THIS ENTIRE BLOCK IS NOW UN-INDENTED ---
-        # It runs ONCE per gate, after the loop above is complete.
+       
         print(f"\n--- Summary for {gate_name} ---")
         
-        # Calculate and print metrics
+        
         acc = accuracy_score(all_targets, all_predictions)
-        # Add labels=[0, 1] to ensure a 2x2 matrix even if one class isn't predicted
+      
         cm = confusion_matrix(all_targets, all_predictions, labels=[0, 1])
         report = classification_report(all_targets, all_predictions, zero_division=0, target_names=["Class 0", "Class 1"])
 

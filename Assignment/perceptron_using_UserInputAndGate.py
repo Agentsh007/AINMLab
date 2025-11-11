@@ -8,9 +8,9 @@ class Perceptron:
         self.epochs = epochs
         self.weights = 2 * np.random.rand(num_inputs) - 1
         self.bias = np.random.rand(1)
-    # FIX 2: Corrected spelling
+    
     def sigmoid(self, net_inputs):
-        # Clip to avoid overflow in exp()
+        
         net_inputs = np.clip(net_inputs, -500, 500)
         return 1 / (1 + np.exp(-net_inputs))
 
@@ -29,13 +29,13 @@ class Perceptron:
                 self.bias += self.learning_rate * delta
                 total_error += error ** 2
             
-            # Check the scalar value of the total error
+           
             if total_error < 1e-5:
                 print(f"Converged early at epoch {epoch}")
                 break
         
             if epoch == self.epochs - 1:
-                # Print final error if it didn't converge early
+               
                 print(f"Total error after training: {total_error}")
 
             
@@ -49,17 +49,15 @@ def main():
         ]
     )
     
-    # FIX 5: Corrected logic gates
     gate_outputs = {
         "OR": np.array([0, 1, 1, 1]),
         "AND": np.array([0, 0, 0, 1]),
-        "NAND": np.array([1, 1, 1, 0]), # Was "NOT" and was incorrect
-        "NOR": np.array([1, 0, 0, 0])  # Was incorrect (had [1,1,1,0])
+        "NAND": np.array([1, 1, 1, 0]), 
+        "NOR": np.array([1, 0, 0, 0])  
     }
     
     perceptron = Perceptron(input_size,0.4,10000)
     
-    # Add a loop to ensure valid gate is entered
     while True:
         gate = input("Enter the gate name (AND, OR, NAND, NOR): ").upper().strip()
         if gate in gate_outputs:
@@ -68,41 +66,32 @@ def main():
   
     target = gate_outputs[gate]
     print(f"---Training for {gate} gate----")
-    # Pass 0.01 as the max_error target
     perceptron.train(training_inputs, target)
     
     print(f"Final weights: {perceptron.weights}")
     print(f"Final bias: {perceptron.bias}")
     
-    # --- Evaluation on Training Data ---
     prediction = perceptron.predict(training_inputs)
     
-    # FIX 6: Must round probabilities to 0 or 1 *before* checking accuracy
-    # Your old `for` loop did not modify the `prediction` array
     prediction_labels = np.round(prediction)
     
     print(f"\n--- Model Evaluation on Training Set ---")
-    # Use the new `prediction_labels` for metrics
     print(f"Accuracy: {accuracy_score(target, prediction_labels):.2%}")
     print(f"Classification Report: \n{classification_report(target, prediction_labels)}")
     print(f"Confusion Matrix: \n{confusion_matrix(target, prediction_labels)}")
     
-    # --- Custom Test Loop ---
     print("\n--- Test with user Inputs ---")
     while True:
             test_input = []
-            # FIX 7: Clearer prompts for user
             val1 = float(input("Enter input 1: "))
             val2 = float(input("Enter input 2: "))
             test_input = np.array([val1, val2])
             
             pred_val = perceptron.predict(test_input)
-            # Round the final fractional output to 0 or 1
             pred_label = np.round(pred_val)
             
             print(f"Input: {test_input} -> Raw: {pred_val}  -> Prediction: {pred_label}")
             
-            # FIX 8: Must *call* the .lower() method with ()
             toQuit = input("To quit enter 'q' (or press Enter to continue): ")
             if toQuit == 'q':
                 return
